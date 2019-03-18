@@ -38,11 +38,18 @@ let summary = Summary(roots: result.values)
 Logger.step("Building HTML..")
 let html = summary.html
 
+//Cleaning HTML file from empty divs and spans
+let regex = try! NSRegularExpression(pattern: "  <div id=\"(.*)\" class=\"(.*)\">\n      \n  </div>", options: NSRegularExpression.Options.caseInsensitive)
+let range = NSMakeRange(0, html.count)
+var cleanedHtml = regex.stringByReplacingMatches(in: html, options: [], range: range, withTemplate: "")
+
+cleanedHtml = cleanedHtml.replacingOccurrences(of: "    <span class=\"icon paperclip-icon\" style=\"display: none\"></span>\n", with: "")
+
 do {
     let path = "\(result.values.first!)/index.html"
     Logger.substep("Writing report to \(path)")
 
-    try html.write(toFile: path, atomically: false, encoding: .utf8)
+    try cleanedHtml.write(toFile: path, atomically: false, encoding: .utf8)
     Logger.success("\nReport successfully created at \(path)")
 }
 catch let e {

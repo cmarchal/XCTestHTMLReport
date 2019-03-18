@@ -45,8 +45,11 @@ enum ObjectClass: String {
     }
 }
 
+
 struct Test: HTML
 {
+    let externalLinkIdentifier: String = "externalLink:"
+
     var uuid: String
     var identifier: String
     var duration: Double
@@ -55,6 +58,14 @@ struct Test: HTML
     var activities: [Activity]?
     var status: Status
     var objectClass: ObjectClass
+    var testAttachmentFlow: TestAttachmentFlow?
+    var externalLink: String {
+        
+        if let externalLinkActivity = activities?.first(where: { $0.title.starts(with: externalLinkIdentifier) }) {
+            return externalLinkActivity.title.replacingOccurrences(of: externalLinkIdentifier, with: "")
+        }
+        return ""
+    }
 
     var allSubTests: [Test]? {
         guard subTests != nil else {
@@ -65,7 +76,7 @@ struct Test: HTML
             guard test.allSubTests != nil else {
                 return [test]
             }
-
+            
             return test.allSubTests
         }).flatMap { $0 }
     }
@@ -98,6 +109,7 @@ struct Test: HTML
 
         let rawStatus = dict["TestStatus"] as? String ?? ""
         status = Status(rawValue: rawStatus)!
+        testAttachmentFlow = TestAttachmentFlow(activities: activities)
     }
 
     // PRAGMA MARK: - HTML
@@ -109,16 +121,15 @@ struct Test: HTML
             "UUID": uuid,
             "NAME": name + (amountSubTests > 0 ? " - \(amountSubTests) tests" : ""),
             "TIME": duration.timeString,
-            "SUB_TESTS": subTests?.reduce("", { (accumulator: String, test: Test) -> String in
-                return accumulator + test.html
-            }) ?? "",
+            "SUB_TESTS": subTests?.accumulateHTMLAsString ?? "",
             "HAS_ACTIVITIES_CLASS": (activities == nil) ? "no-drop-down" : "",
-            "ACTIVITIES": activities?.reduce("", { (accumulator: String, activity: Activity) -> String in
-                return accumulator + activity.html
-            }) ?? "",
+            "ACTIVITIES": activities?.accumulateHTMLAsString ?? "",
             "ICON_CLASS": status.cssClass,
             "ITEM_CLASS": objectClass.cssClass,
-			"LIST_ITEM_CLASS": objectClass == .testSummary ? (status == .failure ? "list-item list-item-failed" : "list-item") : ""
+            "LIST_ITEM_CLASS": objectClass == .testSummary ? (status == .failure ? "list-item list-item-failed" : "list-item") : "",
+            "ATTACHMENT_FLOW": testAttachmentFlow?.html() ?? "",
+            "EXTERNAL_LINK": externalLink,
+            "SHOULD_SHOW_EXTERNAL_LINK": externalLink.count > 0 ? "" : "display:none;"
         ]
     }
 }

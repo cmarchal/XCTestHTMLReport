@@ -53,10 +53,9 @@ extension Summary: HTML
     var htmlPlaceholderValues: [String: String] {
         return [
             "DEVICES": runs.map { $0.runDestination.html }.joined(),
-            "RESULT_CLASS": runs.reduce(true, { (accumulator: Bool, run: Run) -> Bool in
-                return accumulator && run.status == .success
-            }) ? "success" : "failure",
-            "RUNS": runs.map { $0.html }.joined()
+            "RESULT_CLASS": runs.filter{ return $0.numberOfFailedTests != 0 }.count == 0 ? "success" : "failure",
+            "RUNS": runs.map { $0.html }.joined(),
+            "DATE_TESTS": ""
         ]
     }
 }

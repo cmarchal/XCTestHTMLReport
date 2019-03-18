@@ -82,6 +82,18 @@ struct Attachment: HTML
         self.padding = padding
     }
 
+    var isScreenshot: Bool {
+        if let type = type {
+            switch type {
+            case .png, .jpeg:
+                return true
+            default:
+                return false
+            }
+        }
+        return false
+    }
+
     var fallbackDisplayName: String {
         guard let type = type else { return "Attachment" }
         
@@ -123,7 +135,7 @@ struct Attachment: HTML
 
     var htmlPlaceholderValues: [String: String] {
         return [
-            "PADDING": String(padding),
+            "PADDING": String(padding + 52),
             "PATH": path,
             "FILENAME": filename,
             "NAME": displayName

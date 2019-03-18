@@ -15,9 +15,7 @@ struct Run: HTML
     var runDestination: RunDestination
     var testSummaries: [TestSummary]
     var status: Status {
-       return testSummaries.reduce(true, { (accumulator: Bool, summary: TestSummary) -> Bool in
-            return accumulator && summary.status == .success
-        }) ? .success : .failure
+        return numberOfFailedTests == 0 ? .success : .failure
     }
     var allTests: [Test] {
         let tests = testSummaries.flatMap { $0.tests }
