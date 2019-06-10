@@ -91,19 +91,40 @@ struct FileAttachment: HTML {
 struct ScreenshotAttachment: HTML {
     let attachment: Attachment
     
-    static let screenshot = """
+    static let screenshotWithStep = """
+  <div style=\"position:relative;display:inline-block;\">
+      <img class=\"preview-screenshot\" src=\"[[PATH]]/Attachments/[[FILENAME]]\" id=\"screenshot-[[FILENAME]]\" onclick=\"showScreenshot('[[FILENAME]]')\"/>
+      <b class=\"screenshot-step\">Step [[STEP]]</b>
+  </div>
+  """
+
+    static let screenshotWithoutStep = """
   <img class=\"preview-screenshot\" src=\"[[PATH]]/Attachments/[[FILENAME]]\" id=\"screenshot-[[FILENAME]]\" onclick=\"showScreenshot('[[FILENAME]]')\"/>
   """
+
     
     var htmlTemplate: String {
-        return ScreenshotAttachment.screenshot
+        if attachment.step != nil {
+            return ScreenshotAttachment.screenshotWithStep
+        } else {
+            return ScreenshotAttachment.screenshotWithoutStep
+        }
     }
     
     var htmlPlaceholderValues: [String: String] {
-        return [
-            "PATH": attachment.path,
-            "FILENAME": attachment.filename
-        ]
+        
+        if let step = attachment.step {
+            return [
+                "PATH": attachment.path,
+                "FILENAME": attachment.filename,
+                "STEP": "\(step)"
+            ]
+        } else {
+            return [
+                "PATH": attachment.path,
+                "FILENAME": attachment.filename
+            ]
+        }
     }
 }
 

@@ -77,7 +77,7 @@ struct Activity: HTML
         startTime = dict["StartTimeInterval"] as? TimeInterval
         finishTime = dict["FinishTimeInterval"] as? TimeInterval
         title = dict["Title"] as! String
-
+        
         let rawActivityType = dict["ActivityType"] as! String
         if let activityType = ActivityType(rawValue: rawActivityType) {
             type = activityType
@@ -86,7 +86,8 @@ struct Activity: HTML
         }
 
         if let rawAttachments = dict["Attachments"] as? [[String : Any]] {
-            attachments = rawAttachments.map { Attachment(screenshotsPath: screenshotsPath, dict: $0, padding: padding + 16) }
+            //We remove "Debug description" files because they are not interesting for us
+            attachments = rawAttachments.map { Attachment(screenshotsPath: screenshotsPath, dict: $0, padding: padding + 16) }.filter{ !$0.displayName.starts(with: "Debug description")}
         }
 
         if let rawSubActivities = dict["SubActivities"] as? [[String : Any]] {
@@ -94,6 +95,10 @@ struct Activity: HTML
         }
 
         self.padding = padding
+    }
+    
+    var isStepRelative: Bool {
+        return title.starts(with: "STEP")
     }
 
     // PRAGMA MARK: - HTML

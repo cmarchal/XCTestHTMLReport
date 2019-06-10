@@ -407,6 +407,15 @@ struct HTMLTemplates
         background-color: white;
         height: 350px;
     }
+    
+    .screenshot-step {
+        background-color: #121212;
+        font-size: 10px;
+        color: white;
+        position: absolute;
+        top: 0;
+        left: 60px;
+    }
 
     #content {
       height: 100%;
@@ -974,7 +983,7 @@ struct HTMLTemplates
     <span class=\"icon left screenshot-icon\"></span>
     [[NAME]]
     <span class=\"icon preview-icon\" data=\"[[FILENAME]]\" onclick=\"showScreenshot('[[FILENAME]]')\"></span>
-    <img class=\"screenshot\" src=\"[[PATH]]/Attachments/[[FILENAME]]\" id=\"screenshot-[[FILENAME]]\"/>
+    <img class=\"screenshot\" src=\"[[PATH]]/Attachments/[[FILENAME]]\" id=\"screenshot-[[FILENAME]]\" step=\"[[STEP]]\"/>
   </p>
   """
 
