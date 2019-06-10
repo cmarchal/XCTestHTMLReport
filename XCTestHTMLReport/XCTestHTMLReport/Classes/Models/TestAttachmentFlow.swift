@@ -93,13 +93,13 @@ struct ScreenshotAttachment: HTML {
     
     static let screenshotWithStep = """
   <div style=\"position:relative;display:inline-block;\">
-      <img class=\"preview-screenshot\" src=\"[[PATH]]/Attachments/[[FILENAME]]\" id=\"screenshot-[[FILENAME]]\" onclick=\"showScreenshot('[[FILENAME]]')\"/>
-      <b class=\"screenshot-step\">Step [[STEP]]</b>
+      <img class=\"preview-screenshot\" src=\"[[PATH]]/Attachments/[[FILENAME]]\" id=\"screenshot-[[FILENAME]]\" onclick=\"showScreenshot('[[FILENAME]]', '[[STEP]]')\"/>
+      <b class=\"screenshot-step\">STEP [[STEP]]</b>
   </div>
   """
 
     static let screenshotWithoutStep = """
-  <img class=\"preview-screenshot\" src=\"[[PATH]]/Attachments/[[FILENAME]]\" id=\"screenshot-[[FILENAME]]\" onclick=\"showScreenshot('[[FILENAME]]')\"/>
+  <img class=\"preview-screenshot\" src=\"[[PATH]]/Attachments/[[FILENAME]]\" id=\"screenshot-[[FILENAME]]\" onclick=\"showScreenshot('[[FILENAME]]', '[[STEP]]')\"/>
   """
 
     

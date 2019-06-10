@@ -410,11 +410,17 @@ struct HTMLTemplates
     
     .screenshot-step {
         background-color: #121212;
-        font-size: 10px;
+        font-size: 11px;
+        padding: 4px;
         color: white;
         position: absolute;
         top: 0;
-        left: 60px;
+        right: 0;
+    }
+    
+    #right-sidebar-step {
+        font-size: 16px;
+        display: none;
     }
 
     #content {
@@ -582,6 +588,7 @@ struct HTMLTemplates
           <h2>No Selected Attachment</h2>
           <img src=\"\" class=\"displayed-screenshot\" id=\"screenshot\"/>
           <iframe id=\"text-attachment\" src=\"\"></iframe>
+          <b id=\"right-sidebar-step\" class=\"screenshot-step\">[[STEP]]</b>
         </div>
         <div class=\"clear\"></div>
       </div>
@@ -810,14 +817,24 @@ struct HTMLTemplates
 
     function hideScreenshot() {
       screenshot.style.display = \"none\";
+      var rightSidebarStep = document.getElementById('right-sidebar-step');
+      rightSidebarStep.style.display = \"none\";
     }
 
-    function showScreenshot(filename) {
+    function showScreenshot(filename, step) {
       hideAttachmentPlaceholder();
       hideLog();
       var image = document.getElementById('screenshot-'+filename);
       screenshot.style.display = \"block\";
       screenshot.src = image.src;
+      
+      var rightSidebarStep = document.getElementById('right-sidebar-step');
+      if (step === null || step === \"[[STEP]]\") {
+          rightSidebarStep.style.display = \"none\";
+      } else {
+          rightSidebarStep.innerHTML = \"STEP \" + step
+          rightSidebarStep.style.display = \"block\";
+      }
     }
 
     function setDisplayToElementsWithSelector(sel, display) {
@@ -982,7 +999,7 @@ struct HTMLTemplates
   <p class=\"attachment list-item\" style=\"padding-left: [[PADDING]]px\">
     <span class=\"icon left screenshot-icon\"></span>
     [[NAME]]
-    <span class=\"icon preview-icon\" data=\"[[FILENAME]]\" onclick=\"showScreenshot('[[FILENAME]]')\"></span>
+    <span class=\"icon preview-icon\" data=\"[[FILENAME]]\" onclick=\"showScreenshot('[[FILENAME]]', '[[STEP]]')\"></span>
     <img class=\"screenshot\" src=\"[[PATH]]/Attachments/[[FILENAME]]\" id=\"screenshot-[[FILENAME]]\" step=\"[[STEP]]\"/>
   </p>
   """
