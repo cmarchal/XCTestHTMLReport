@@ -89,10 +89,12 @@ struct HTMLTemplates
       margin-bottom: 10px;
     }
 
+    .run-date,
+    .device-name,
     .device-os,
     .device-identifier,
     .device-model {
-      padding-left: 24px;
+      padding-left: 8px;
     }
 
     .device-info .device-result {
@@ -441,7 +443,7 @@ struct HTMLTemplates
     }
 
     #left-sidebar {
-      width: 200px;
+      width: 180px;
       border-right: 1px solid #BBB;
       display: flex;
       flex-direction: column;
@@ -558,7 +560,6 @@ struct HTMLTemplates
     <div id=\"content\">
       <header>
         <div id=\"title\">
-          <span class=\"icon big [[RESULT_CLASS]]\"></span>
           <h1>XCTestHTMLReport [[DATE_TESTS]]</h1>
           <div class=\"clear\"></div>
         </div>
@@ -922,7 +923,7 @@ struct HTMLTemplates
 
   static let device = """
     <ul class=\"device-info\" onclick=\"selectDevice('[[DEVICE_IDENTIFIER]]', this);\">
-    <li>[[DEVICE_RESULT]]<h3 class=\"device-name\">[[DEVICE_NAME]]</h3></li>
+    <li><h3 class=\"device-name\">[[DEVICE_NAME]]</h3></li>
     <li class=\"device-os\">iOS [[DEVICE_OS]]</li>
     <li class=\"device-model\">Model: [[DEVICE_MODEL]]</li>
     <li class=\"device-identifier\">Identifier: [[DEVICE_IDENTIFIER]]</li>

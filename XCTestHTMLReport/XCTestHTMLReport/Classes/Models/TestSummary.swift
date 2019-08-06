@@ -13,8 +13,14 @@ struct TestSummary: HTML
     var uuid: String
     var testName: String
     var tests: [Test]
+    var testFilter : String? = nil
     var status: Status {
         var currentTests = tests
+        
+        if let filter = testFilter {
+            currentTests = currentTests.filter{ $0.name == filter }
+        }
+        
         var status: Status = .unknown
 
         if currentTests.count == 0 {
@@ -63,9 +69,15 @@ struct TestSummary: HTML
     var htmlTemplate = HTMLTemplates.testSummary
 
     var htmlPlaceholderValues: [String: String] {
+        
+        var testsToUse = tests
+        if let filter = testFilter {
+            testsToUse = tests.filter{ $0.name == filter }
+        }
+
         return [
             "UUID": uuid,
-            "TESTS": tests.accumulateHTMLAsString
+            "TESTS": testsToUse.accumulateHTMLAsString
         ]
     }
 }

@@ -13,6 +13,7 @@ struct Run: HTML
     private let activityLogsFilename = "action.xcactivitylog"
 
     var runDestination: RunDestination
+    var runStartDate: Date? = nil
     var testSummaries: [TestSummary]
     var status: Status {
         return numberOfFailedTests == 0 ? .success : .failure
@@ -29,15 +30,32 @@ struct Run: HTML
 
         return subTests.flatMap { $0 }
     }
+    var filteredTests: [Test]? {
+        get {
+            if testFilter != nil {
+                return allTests.filter{ $0.name == testFilter }
+            } else {
+                return allTests
+            }
+        }
+    }
     var numberOfTests : Int {
-        let a = allTests
-        return a.count
+        let a = filteredTests
+        return a?.count ?? 0
     }
     var numberOfPassedTests : Int {
-        return allTests.filter { $0.status == .success }.count
+        return filteredTests?.filter { $0.status == .success }.count ?? 0
     }
     var numberOfFailedTests : Int {
-        return allTests.filter { $0.status == .failure }.count
+        return filteredTests?.filter { $0.status == .failure }.count ?? 0
+    }
+    
+    var testFilter : String? = nil {
+        didSet {
+            for index in 0..<testSummaries.count {
+                testSummaries[index].testFilter = testFilter
+            }
+        }
     }
 
     init(root: String, path: String, indexHTMLRoot: String)
@@ -88,6 +106,13 @@ struct Run: HTML
         } else {
             Logger.substep("Found \(logsPath)")
 
+            do {
+                //Using creation date to figure out when tests have been run
+                try runStartDate = FileManager.default.attributesOfItem(atPath: logsPath)[.creationDate] as? Date
+            } catch let e {
+                Logger.error("An error has occured while get file creation date. Error: \(e)")
+            }
+
             let data = NSData(contentsOfFile: logsPath)
 
             Logger.substep("Gunzipping activity logs")
@@ -130,7 +155,7 @@ struct Run: HTML
             }
         }
     }
-
+    
     // PRAGMA MARK: - HTML
 
     var htmlTemplate = HTMLTemplates.run

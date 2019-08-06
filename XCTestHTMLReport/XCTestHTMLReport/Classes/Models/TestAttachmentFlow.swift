@@ -117,7 +117,7 @@ struct ScreenshotAttachment: HTML {
             return [
                 "PATH": attachment.path,
                 "FILENAME": attachment.filename,
-                "STEP": "\(step)"
+                "STEP": step
             ]
         } else {
             return [

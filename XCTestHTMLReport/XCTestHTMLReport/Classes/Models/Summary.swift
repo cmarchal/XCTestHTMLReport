@@ -42,6 +42,11 @@ struct Summary
             }
         }
     }
+    
+    init(runs: [Run])
+    {
+        self.runs = runs
+    }
 }
 
 extension Summary: HTML
@@ -53,9 +58,9 @@ extension Summary: HTML
     var htmlPlaceholderValues: [String: String] {
         return [
             "DEVICES": runs.map { $0.runDestination.html }.joined(),
-            "RESULT_CLASS": runs.filter{ return $0.numberOfFailedTests != 0 }.count == 0 ? "success" : "failure",
+            //"RESULT_CLASS": runs.filter{ return $0.numberOfFailedTests != 0 }.count == 0 ? "success" : "failure",
             "RUNS": runs.map { $0.html }.joined(),
-            "DATE_TESTS": ""
+            "DATE_TESTS": runs.first?.runStartDate?.dateString ?? ""
         ]
     }
 }

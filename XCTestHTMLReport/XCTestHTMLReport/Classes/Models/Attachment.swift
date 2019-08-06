@@ -116,21 +116,17 @@ struct Attachment: HTML
         }
     }
     
-    var step: Int? {
+    var step: String? {
         
-        let splitString = filename.components(separatedBy: "_step")
+        let splitString = filename.components(separatedBy: "__step")
         if splitString.count > 1 {
-
-            var stepNumber = ""
-            for char in splitString[1] {
-                if char.isNumber {
-                    stepNumber.append(char)
-                } else {
-                    return Int(stepNumber)
-                }
-            }
+            return splitString[1].components(separatedBy: "__")[0]
         }
         return nil
+    }
+    
+    var isFailure: Bool {
+        return filename.contains("Failure")
     }
         
     // PRAGMA MARK: - HTML

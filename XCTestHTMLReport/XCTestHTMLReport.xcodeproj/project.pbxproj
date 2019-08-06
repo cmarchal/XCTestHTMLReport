@@ -10,6 +10,7 @@
 		0994F3C92175C16A003988B4 /* String+Path.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0994F3C82175C16A003988B4 /* String+Path.swift */; };
 		0994F3CB2175C1B7003988B4 /* String+Xml.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0994F3CA2175C1B7003988B4 /* String+Xml.swift */; };
 		1A846CDB221C9E7700578F5B /* TestAttachmentFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A846CDA221C9E7700578F5B /* TestAttachmentFlow.swift */; };
+		1A96533022FA0ECB00B3EF31 /* Date+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A96532F22FA0ECB00B3EF31 /* Date+Formatting.swift */; };
 		B12D2AA11FC69B0700DE78C6 /* NSData+GZIP.m in Sources */ = {isa = PBXBuildFile; fileRef = B12D2AA01FC69B0700DE78C6 /* NSData+GZIP.m */; };
 		D980EDD4209123E400CABFE7 /* JUnitReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = D980EDD3209123DB00CABFE7 /* JUnitReport.swift */; };
 		F30667381F2A0DE900EDE682 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = F30667371F2A0DE900EDE682 /* Logger.swift */; };
@@ -58,6 +59,7 @@
 		0994F3C82175C16A003988B4 /* String+Path.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Path.swift"; sourceTree = "<group>"; };
 		0994F3CA2175C1B7003988B4 /* String+Xml.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Xml.swift"; sourceTree = "<group>"; };
 		1A846CDA221C9E7700578F5B /* TestAttachmentFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAttachmentFlow.swift; sourceTree = "<group>"; };
+		1A96532F22FA0ECB00B3EF31 /* Date+Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Formatting.swift"; sourceTree = "<group>"; };
 		B12D2A9F1FC69B0700DE78C6 /* NSData+GZIP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+GZIP.h"; sourceTree = "<group>"; };
 		B12D2AA01FC69B0700DE78C6 /* NSData+GZIP.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+GZIP.m"; sourceTree = "<group>"; };
 		D980EDD3209123DB00CABFE7 /* JUnitReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JUnitReport.swift; sourceTree = "<group>"; };
@@ -198,6 +200,7 @@
 				F340F8171F2A37B000AECEE2 /* TimeInterval+Time.swift */,
 				0994F3C82175C16A003988B4 /* String+Path.swift */,
 				0994F3CA2175C1B7003988B4 /* String+Xml.swift */,
+				1A96532F22FA0ECB00B3EF31 /* Date+Formatting.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -348,6 +351,7 @@
 				F30667561F2A1BE200EDE682 /* XcodeColorsSupport.swift in Sources */,
 				F30667621F2A1BEC00EDE682 /* ModesExtractor.swift in Sources */,
 				F30667541F2A1BE200EDE682 /* StringGenerator.swift in Sources */,
+				1A96533022FA0ECB00B3EF31 /* Date+Formatting.swift in Sources */,
 				F3B7EE6A1F2242D200E19B57 /* RunDestination.swift in Sources */,
 				0994F3CB2175C1B7003988B4 /* String+Xml.swift in Sources */,
 				0994F3C92175C16A003988B4 /* String+Path.swift in Sources */,

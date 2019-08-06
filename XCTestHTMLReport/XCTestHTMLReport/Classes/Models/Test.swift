@@ -46,8 +46,12 @@ enum ObjectClass: String {
 }
 
 
-struct Test: HTML
+class Test: HTML, Equatable
 {
+    static func == (lhs: Test, rhs: Test) -> Bool {
+        return lhs.name == rhs.name
+    }
+    
     let externalLinkIdentifier: String = "externalLink:"
 
     var uuid: String
@@ -55,6 +59,16 @@ struct Test: HTML
     var duration: Double
     var name: String
     var subTests: [Test]?
+    var filteredSubTests: [Test]? {
+        get {
+            if testFilter != nil {
+                return subTests?.filter{ $0.name == testFilter }
+            } else {
+                return subTests
+            }
+        }
+    }
+    var parent: Test?
     var activities: [Activity]?
     var status: Status
     var objectClass: ObjectClass
@@ -66,6 +80,8 @@ struct Test: HTML
         }
         return ""
     }
+    
+    var testFilter : String? = nil
 
     var allSubTests: [Test]? {
         guard subTests != nil else {
@@ -77,12 +93,16 @@ struct Test: HTML
                 return [test]
             }
             
-            return test.allSubTests
+            if let filter = testFilter {
+                return test.allSubTests?.filter { $0.name == filter }
+            } else {
+                return test.allSubTests
+            }
         }).flatMap { $0 }
     }
 
     var amountSubTests: Int {
-        if let subTests = subTests {
+        if let subTests = filteredSubTests {
             let a = subTests.reduce(0) { $0 + $1.amountSubTests }
             return a == 0 ? subTests.count : a
         }
@@ -90,7 +110,7 @@ struct Test: HTML
         return 0
     }
 
-    init(screenshotsPath: String, dict: [String : Any]) {
+    init(screenshotsPath: String, dict: [String : Any], parent: Test? = nil) {
         uuid = dict["TestSummaryGUID"] as? String ?? NSUUID().uuidString
         duration = dict["Duration"] as! Double
         name = dict["TestName"] as! String
@@ -110,6 +130,16 @@ struct Test: HTML
         let rawStatus = dict["TestStatus"] as? String ?? ""
         status = Status(rawValue: rawStatus)!
         testAttachmentFlow = TestAttachmentFlow(activities: activities)
+        self.setParentToChildren()
+    }
+    
+     func setParentToChildren() {
+        
+        if let subtests = subTests {
+            for index in 0..<subtests.count {
+                subTests![index].parent = self
+            }
+        }
     }
 
     // PRAGMA MARK: - HTML
@@ -117,11 +147,12 @@ struct Test: HTML
     var htmlTemplate = HTMLTemplates.test
 
     var htmlPlaceholderValues: [String: String] {
+        
         return [
             "UUID": uuid,
             "NAME": name + (amountSubTests > 0 ? " - \(amountSubTests) tests" : ""),
-            "TIME": duration.timeString,
-            "SUB_TESTS": subTests?.accumulateHTMLAsString ?? "",
+            "TIME": amountSubTests == 1 ? filteredSubTests!.first!.duration.timeString : (testFilter == nil ? duration.timeString : "-"),
+            "SUB_TESTS": filteredSubTests?.accumulateHTMLAsString ?? "",
             "HAS_ACTIVITIES_CLASS": (activities == nil) ? "no-drop-down" : "",
             "ACTIVITIES": activities?.accumulateHTMLAsString ?? "",
             "ICON_CLASS": status.cssClass,
