@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import XCResultKit
 
 enum AttachmentType: String {
     case unknwown = ""
@@ -57,28 +58,23 @@ enum AttachmentName: RawRepresentable {
 
 struct Attachment: HTML
 {
-    var padding = 0
-    var filename: String
-    var path: String
-    var type: AttachmentType?
-    var name: AttachmentName?
+    let padding: Int
+    let filename: String
+    let path: String
+    let type: AttachmentType
+    let name: AttachmentName?
 
     init(screenshotsPath: String, dict: [String : Any], padding: Int)
     {
-        path = screenshotsPath
-        filename = dict["Filename"] as! String
-        let typeRaw = dict["UniformTypeIdentifier"] as! String
-
-        if let attachmentType = AttachmentType(rawValue: typeRaw) {
-            type = attachmentType
+        self.filename = attachment.filename ?? ""
+        self.type = AttachmentType(rawValue: attachment.uniformTypeIdentifier) ?? .unknwown
+        self.name = attachment.name.map(AttachmentName.init(rawValue:))
+        if let id = attachment.payloadRef?.id,
+            let url = file.exportPayload(id: id) {
+            self.path = url.relativePath
         } else {
-            Logger.warning("Attachment type is not supported: \(typeRaw). Skipping.")
+            self.path = ""
         }
-        
-        if let name = dict["Name"] as? String {
-            self.name = AttachmentName(rawValue: name)
-        }
-
         self.padding = padding
     }
 
@@ -95,8 +91,6 @@ struct Attachment: HTML
     }
 
     var fallbackDisplayName: String {
-        guard let type = type else { return "Attachment" }
-        
         switch type {
         case .png, .jpeg:
             return "Screenshot"
@@ -132,18 +126,14 @@ struct Attachment: HTML
     // PRAGMA MARK: - HTML
 
     var htmlTemplate: String {
-        if let type = type {
-            switch type {
-            case .png, .jpeg:
-                return HTMLTemplates.screenshot
-            case .text, .html, .data:
-                return HTMLTemplates.text
-            case .unknwown:
-                return ""
-            }
+        switch type {
+        case .png, .jpeg:
+            return HTMLTemplates.screenshot
+        case .text, .html, .data:
+            return HTMLTemplates.text
+        case .unknwown:
+            return ""
         }
-
-        return ""
     }
 
     var htmlPlaceholderValues: [String: String] {

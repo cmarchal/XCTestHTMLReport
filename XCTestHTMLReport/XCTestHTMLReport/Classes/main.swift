@@ -6,9 +6,9 @@
 //  Copyright © 2017 Tito. All rights reserved.
 //
 
-import Foundation
+import Darwin
 
-var version = "1.6.2"
+var version = "2.0.0"
 
 print("XCTestHTMLReport \(version)")
 
@@ -37,7 +37,7 @@ if !command.isValid {
     exit(EXIT_FAILURE)
 }
 
-let summary = Summary(roots: result.values)
+let summary = Summary(resultPaths: result.values)
 
 Logger.step("Building HTML..")
 let html = summary.html
@@ -50,7 +50,9 @@ var cleanedHtml = regex.stringByReplacingMatches(in: html, options: [], range: r
 cleanedHtml = cleanedHtml.replacingOccurrences(of: "    <span class=\"icon paperclip-icon\" style=\"display: none\"></span>\n", with: "")
 
 do {
-    let path = "\(result.values.first!)/index.html"
+    let path = result.values.first!
+        .dropLastPathComponent()
+        .addPathComponent("index.html")
     Logger.substep("Writing report to \(path)")
 
     try cleanedHtml.write(toFile: path, atomically: false, encoding: .utf8)

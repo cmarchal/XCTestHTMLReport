@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import XCResultKit
 
 private extension Status {
     /// e.g. <span class="icon left failure"></span>
@@ -33,16 +34,16 @@ private extension Status {
 
 struct RunDestination : HTML
 {
-    var name: String
-    var targetDevice: TargetDevice
-    var status: Status = .unknown
+    let name: String
+    let targetDevice: TargetDevice
+    let status: Status = .unknown
 
     init(dict: [String : Any])
     {
-        Logger.substep("Parsing RunDestination")
-        
-        name = dict["Name"] as! String
-        targetDevice = TargetDevice(dict: dict["TargetDevice"] as! [String : Any])
+        Logger.substep("Parsing ActionRunDestinationRecord")
+        name = record.displayName
+        targetDevice = TargetDevice(record: record.targetDeviceRecord)
+        status = .unknown // TODO: (Pierre Felgines) 04/10/2019 Find the correct value
     }
 
     // PRAGMA MARK: - HTML

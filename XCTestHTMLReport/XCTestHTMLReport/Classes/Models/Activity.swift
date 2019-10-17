@@ -34,11 +34,11 @@ enum ActivityType: String {
 
 struct Activity: HTML
 {
-    var uuid: String
-    var padding = 0
-    var attachments: [Attachment]?
-    var startTime: TimeInterval?
-    var finishTime: TimeInterval?
+    let uuid: String
+    let padding: Int
+    let attachments: [Attachment]
+    let startTime: TimeInterval?
+    let finishTime: TimeInterval?
     var totalTime: TimeInterval {
         if let start = startTime, let finish = finishTime {
             return finish - start
@@ -47,16 +47,14 @@ struct Activity: HTML
         return 0.0
     }
     var title: String
-    var subActivities: [Activity]?
+    var subActivities: [Activity]
     var type: ActivityType?
     var hasGlobalAttachment: Bool {
-        let hasDirecAttachment = attachments?.count ?? 0 > 0
-        let subActivitesHaveAttachments = subActivities?.reduce(false) { $0 || $1.hasGlobalAttachment } ?? false
-        return hasDirecAttachment || subActivitesHaveAttachments
+        let hasDirectAttachment = !attachments.isEmpty
+        let subActivitesHaveAttachments = subActivities.reduce(false) { $0 || $1.hasGlobalAttachment }
+        return hasDirectAttachment || subActivitesHaveAttachments
     }
     var hasFailingSubActivities: Bool {
-		guard let subActivities = subActivities else { return false }
-
 		return subActivities.reduce(false) { $0 || $1.type == .assertionFailure || $1.hasFailingSubActivities }
     }
     var cssClasses: String {
@@ -73,27 +71,17 @@ struct Activity: HTML
     }
     
     init(screenshotsPath: String, dict: [String : Any], padding: Int) {
-        uuid = dict["UUID"] as! String
-        startTime = dict["StartTimeInterval"] as? TimeInterval
-        finishTime = dict["FinishTimeInterval"] as? TimeInterval
-        title = dict["Title"] as! String
-        
-        let rawActivityType = dict["ActivityType"] as! String
-        if let activityType = ActivityType(rawValue: rawActivityType) {
-            type = activityType
-        } else {
-            Logger.warning("Activity type is not supported: \(rawActivityType). Skipping activity: \(title)")
+        self.uuid = summary.uuid
+        self.startTime = summary.start?.timeIntervalSince1970 ?? 0
+        self.finishTime = summary.finish?.timeIntervalSince1970 ?? 0
+        self.title = summary.title
+        self.subActivities = summary.subactivities.map {
+            Activity(summary: $0, file: file, padding: padding + 10)
         }
-
-        if let rawAttachments = dict["Attachments"] as? [[String : Any]] {
-            //We remove "Debug description" files because they are not interesting for us
-            attachments = rawAttachments.map { Attachment(screenshotsPath: screenshotsPath, dict: $0, padding: padding + 16) }.filter{ !$0.displayName.starts(with: "Debug description")}
+        self.type = ActivityType(rawValue: summary.activityType)
+        self.attachments = summary.attachments.map {
+            Attachment(attachment: $0, file: file, padding: padding + 16).filter{ !$0.displayName.starts(with: "Debug description")}
         }
-
-        if let rawSubActivities = dict["SubActivities"] as? [[String : Any]] {
-            subActivities = rawSubActivities.map { Activity(screenshotsPath: screenshotsPath, dict: $0, padding: padding + 10) }
-        }
-
         self.padding = padding
     }
     
@@ -110,12 +98,16 @@ struct Activity: HTML
             "UUID": uuid,
             "TITLE": title.stringByEscapingXMLChars,
             "PAPER_CLIP_CLASS": hasGlobalAttachment ? "inline-block" : "none",
-            "PADDING": (subActivities == nil && (attachments == nil || attachments?.count == 0)) ? String(padding + 18 + 52) : String(padding + 52),
+            "PADDING": (subActivities.isEmpty && attachments.isEmpty) ? String(padding + 18 + 52) : String(padding + 52),
             "TIME": totalTime.timeString,
             "ACTIVITY_TYPE_CLASS": cssClasses,
-            "HAS_SUB-ACTIVITIES_CLASS": (subActivities == nil && (attachments == nil || attachments?.count == 0)) ? "no-drop-down" : "",
-            "SUB_ACTIVITY": subActivities?.accumulateHTMLAsString ?? "",
-            "ATTACHMENTS": attachments?.accumulateHTMLAsString ?? "",
+            "HAS_SUB-ACTIVITIES_CLASS": (subActivities.isEmpty && attachments.isEmpty) ? "no-drop-down" : "",
+            "SUB_ACTIVITY": subActivities.reduce(""){ (accumulator: String, activity: Activity) -> String in
+                return accumulator + activity.html
+            },
+            "ATTACHMENTS": attachments.reduce("") { (accumulator: String, attachment: Attachment) -> String in
+                return accumulator + attachment.html
+            },
         ]
     }
 }

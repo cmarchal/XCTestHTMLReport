@@ -7,28 +7,25 @@
 //
 
 import Foundation
+import XCResultKit
 
 struct Run: HTML
 {
-    private let activityLogsFilename = "action.xcactivitylog"
-
     var runDestination: RunDestination
-    var runStartDate: Date? = nil
     var testSummaries: [TestSummary]
+    let logPath: String
     var status: Status {
-        return numberOfFailedTests == 0 ? .success : .failure
+       return testSummaries.reduce(true, { (accumulator: Bool, summary: TestSummary) -> Bool in
+            return accumulator && summary.status == .success
+        }) ? .success : .failure
     }
     var allTests: [Test] {
         let tests = testSummaries.flatMap { $0.tests }
-        let subTests = tests.compactMap { (test) -> [Test]? in
-            guard test.allSubTests != nil else {
-                return [test]
-            }
-
-            return test.allSubTests
+        return tests.flatMap { test -> [Test] in
+            return test.allSubTests.isEmpty
+                ? [test]
+                : test.allSubTests
         }
-
-        return subTests.flatMap { $0 }
     }
     var filteredTests: [Test]? {
         get {
@@ -60,100 +57,27 @@ struct Run: HTML
 
     init(root: String, path: String, indexHTMLRoot: String)
     {
-        let fullpath = root + "/" + path
-        Logger.step("Parsing summary")
-        Logger.substep("Found summary at \(fullpath)")
-        let dict = NSDictionary(contentsOfFile: fullpath)
+        self.runDestination = RunDestination(record: action.runDestination)
 
-        guard dict != nil else {
-            Logger.error("Failed to parse the content of \(fullpath)")
-            exit(EXIT_FAILURE)
+        guard
+            let testReference = action.actionResult.testsRef,
+            let testPlanSummaries = file.getTestPlanRunSummaries(id: testReference.id) else {
+                Logger.warning("Can't find test reference for action \(action.title ?? "")")
+                return nil
         }
 
-        runDestination = RunDestination(dict: dict!["RunDestination"] as! [String : Any])
-
-        var screenshotsPath = ""
-        if root == indexHTMLRoot {
-            screenshotsPath = path.dropLastPathComponent()
+        // TODO: (Pierre Felgines) 02/10/2019 Use only emittedOutput from logs objects
+        // For now XCResultKit do not handle logs
+        if let logReference = action.actionResult.logRef,
+            let url = file.exportLogs(id: logReference.id) {
+            self.logPath = url.relativePath
         } else {
-            var indexDiff = 0;
-            let pathComponentsA = (indexHTMLRoot as NSString).pathComponents
-            let pathComponentsB = (root as NSString).pathComponents
-
-            for index in 0..<min(pathComponentsA.count, pathComponentsB.count) {
-                if pathComponentsA[index] == pathComponentsB[index] {
-                    indexDiff += 1
-                } else {
-                    break;
-                }
-            }
-
-            screenshotsPath = String(repeating: "../", count: pathComponentsB[indexDiff...].count) + pathComponentsB[indexDiff...].joined(separator: "/")
+            Logger.warning("Can't find test reference for action \(action.title ?? "")")
+            self.logPath = ""
         }
-
-        let testableSummaries = dict!["TestableSummaries"] as! [[String: Any]]
-        testSummaries = testableSummaries.map { TestSummary(screenshotsPath: screenshotsPath, dict: $0) }
-        runDestination.status = status
-
-        Logger.substep("Parsing Activity Logs")
-        let parentDirectory = fullpath.dropLastPathComponent()
-        Logger.substep("Searching for \(activityLogsFilename) in \(parentDirectory)")
-
-        let logsPath = parentDirectory + "/" + activityLogsFilename
-
-        if !FileManager.default.fileExists(atPath: logsPath) {
-            Logger.warning("Failed to find \(activityLogsFilename) in \(parentDirectory). Not appending activity logs to report.")
-        } else {
-            Logger.substep("Found \(logsPath)")
-
-            do {
-                //Using creation date to figure out when tests have been run
-                try runStartDate = FileManager.default.attributesOfItem(atPath: logsPath)[.creationDate] as? Date
-            } catch let e {
-                Logger.error("An error has occured while get file creation date. Error: \(e)")
-            }
-
-            let data = NSData(contentsOfFile: logsPath)
-
-            Logger.substep("Gunzipping activity logs")
-            let gunzippedData = data!.gunzipped()!
-            let logs = String(data: gunzippedData, encoding: .utf8)!
-
-            Logger.substep("Extracting useful activity logs")
-            let runningTestsPattern = "Test Suite '.+' started at"
-            let runningTestsRegex = try! NSRegularExpression(pattern: runningTestsPattern, options: .caseInsensitive)
-            let runningTestsMatches = runningTestsRegex.matches(in: logs, options: [], range: NSRange(location: 0, length: logs.count))
-            let lastRunningTestsMatch = runningTestsMatches.first
-
-            guard lastRunningTestsMatch != nil else {
-                Logger.warning("Failed to extract activity logs from \(root). Could not locate match for \"\(runningTestsPattern)\"")
-                return
-            }
-
-            let pattern = "Test Suite '.+' (failed|passed).+\r.+seconds"
-            let regex = try! NSRegularExpression(pattern: pattern, options: .caseInsensitive)
-            let matches = regex.matches(in: logs, options: [], range: NSRange(location: 0, length: logs.count))
-            let lastMatch = matches.last
-
-            guard lastMatch != nil else {
-                Logger.warning("Failed to extract activity logs from \(root). Could not locate match for \"\(pattern)\" ")
-                return
-            }
-
-            let startIndex = lastRunningTestsMatch!.range.location
-            let endIndex = lastMatch!.range.location + lastMatch!.range.length
-            let start = logs.index(logs.startIndex, offsetBy: startIndex)
-            let end = logs.index(logs.startIndex, offsetBy: endIndex)
-            let activityLogs = logs[start..<end]
-
-            do {
-                let file = "\(result.values.first!)/logs-\(runDestination.targetDevice.uniqueIdentifier).txt"
-                try activityLogs.write(toFile: file, atomically: false, encoding: .utf8)
-            }
-            catch let e {
-                Logger.error("An error has occured while create the activity log file for \(root). Error: \(e)")
-            }
-        }
+        self.testSummaries = testPlanSummaries.summaries
+            .flatMap { $0.testableSummaries }
+            .map { TestSummary(summary: $0, file: file) }
     }
     
     // PRAGMA MARK: - HTML
@@ -163,6 +87,7 @@ struct Run: HTML
     var htmlPlaceholderValues: [String: String] {
         return [
             "DEVICE_IDENTIFIER": runDestination.targetDevice.uniqueIdentifier,
+            "LOG_PATH": logPath,
             "N_OF_TESTS": String(numberOfTests),
             "N_OF_PASSED_TESTS": String(numberOfPassedTests),
             "N_OF_FAILED_TESTS": String(numberOfFailedTests),

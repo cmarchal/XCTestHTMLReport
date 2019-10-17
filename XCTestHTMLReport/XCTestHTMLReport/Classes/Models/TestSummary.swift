@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import XCResultKit
 
 struct TestSummary: HTML
 {
@@ -54,14 +55,10 @@ struct TestSummary: HTML
         return status
     }
 
-    init(screenshotsPath: String, dict: [String : Any])
-    {
-        Logger.substep("Parsing TestSummary")
-        
-        uuid = NSUUID().uuidString
-        testName = dict["TestName"] as! String
-        let rawTests = dict["Tests"] as! [[String: Any]]
-        tests = rawTests.map { Test(screenshotsPath: screenshotsPath, dict: $0) }
+    init(summary: ActionTestableSummary, file: ResultFile) {
+        self.uuid = UUID().uuidString
+        self.testName = summary.targetName ?? ""
+        self.tests = summary.tests.map { Test(group: $0, file: file) }
     }
 
     // PRAGMA MARK: - HTML
@@ -77,7 +74,18 @@ struct TestSummary: HTML
 
         return [
             "UUID": uuid,
-            "TESTS": testsToUse.accumulateHTMLAsString
+            "TESTS": testsToUse.reduce("", { (accumulator: String, test: Test) -> String in
+                return accumulator + test.html
+            })
         ]
+    }
+}
+
+extension Test {
+    func allTestSummaries() -> [Test] {
+        if self.objectClass == .testSummary {
+            return [self]
+        }
+        return subTests.flatMap { $0.allTestSummaries() }
     }
 }

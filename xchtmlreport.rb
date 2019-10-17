@@ -6,7 +6,7 @@ class Xchtmlreport < Formula
   head "https://github.com/TitouanVanBelle/XCTestHTMLReport.git", :branch => "develop"
 
   def install
-    system "xcodebuild clean build CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO -workspace XCTestHTMLReport.xcworkspace -scheme XCTestHTMLReport -configuration Release"
-    bin.install "xchtmlreport"
+    system "swift build -c release"
+    bin.install ".build/release/xchtmlreport"
   end
 end

@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		0994F3C92175C16A003988B4 /* String+Path.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0994F3C82175C16A003988B4 /* String+Path.swift */; };
 		0994F3CB2175C1B7003988B4 /* String+Xml.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0994F3CA2175C1B7003988B4 /* String+Xml.swift */; };
+		1A2E304F2357A5B90075D780 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2E304E2357A5B90075D780 /* Package.swift */; };
+		1A2E30512357A8B10075D780 /* ResultFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2E30502357A8B10075D780 /* ResultFile.swift */; };
+		1A2E30532357ACC80075D780 /* EmittableOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A2E30522357ACC80075D780 /* EmittableOutput.swift */; };
 		1A846CDB221C9E7700578F5B /* TestAttachmentFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A846CDA221C9E7700578F5B /* TestAttachmentFlow.swift */; };
 		1A96533022FA0ECB00B3EF31 /* Date+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A96532F22FA0ECB00B3EF31 /* Date+Formatting.swift */; };
 		B12D2AA11FC69B0700DE78C6 /* NSData+GZIP.m in Sources */ = {isa = PBXBuildFile; fileRef = B12D2AA01FC69B0700DE78C6 /* NSData+GZIP.m */; };
@@ -58,6 +61,10 @@
 /* Begin PBXFileReference section */
 		0994F3C82175C16A003988B4 /* String+Path.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Path.swift"; sourceTree = "<group>"; };
 		0994F3CA2175C1B7003988B4 /* String+Xml.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Xml.swift"; sourceTree = "<group>"; };
+		1A2E304D2357A5A40075D780 /* Package.resolved */ = {isa = PBXFileReference; lastKnownFileType = text; name = Package.resolved; path = ../Package.resolved; sourceTree = "<group>"; };
+		1A2E304E2357A5B90075D780 /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		1A2E30502357A8B10075D780 /* ResultFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultFile.swift; sourceTree = "<group>"; };
+		1A2E30522357ACC80075D780 /* EmittableOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmittableOutput.swift; sourceTree = "<group>"; };
 		1A846CDA221C9E7700578F5B /* TestAttachmentFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAttachmentFlow.swift; sourceTree = "<group>"; };
 		1A96532F22FA0ECB00B3EF31 /* Date+Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Formatting.swift"; sourceTree = "<group>"; };
 		B12D2A9F1FC69B0700DE78C6 /* NSData+GZIP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+GZIP.h"; sourceTree = "<group>"; };
@@ -85,7 +92,7 @@
 		F30753F2209868460079C53E /* device.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = device.html; sourceTree = "<group>"; };
 		F3190E612098647300BC991B /* JUnitRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JUnitRepresentable.swift; sourceTree = "<group>"; };
 		F3190E632098648100BC991B /* XMLRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLRepresentable.swift; sourceTree = "<group>"; };
-		F324B4951F22359500B5B8B4 /* xchtmlreport */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = xchtmlreport; sourceTree = BUILT_PRODUCTS_DIR; };
+		F324B4951F22359500B5B8B4 /* xchtmlreport */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = xchtmlreport; sourceTree = BUILT_PRODUCTS_DIR; };
 		F324B4981F22359500B5B8B4 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		F324B49F1F22383D00B5B8B4 /* Argument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Argument.swift; sourceTree = "<group>"; };
 		F340F8171F2A37B000AECEE2 /* TimeInterval+Time.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Time.swift"; sourceTree = "<group>"; };
@@ -171,6 +178,8 @@
 		F324B48C1F22359500B5B8B4 = {
 			isa = PBXGroup;
 			children = (
+				1A2E304E2357A5B90075D780 /* Package.swift */,
+				1A2E304D2357A5A40075D780 /* Package.resolved */,
 				F324B4971F22359500B5B8B4 /* XCTestHTMLReport */,
 				F324B4961F22359500B5B8B4 /* Products */,
 			);
@@ -211,6 +220,7 @@
 				F3B7EE7D1F233B9C00E19B57 /* HTML.swift */,
 				F3190E612098647300BC991B /* JUnitRepresentable.swift */,
 				F3190E632098648100BC991B /* XMLRepresentable.swift */,
+				1A2E30522357ACC80075D780 /* EmittableOutput.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -230,6 +240,7 @@
 				F3B7EE711F224A4200E19B57 /* Test.swift */,
 				F3B7EE6F1F2247FA00E19B57 /* TestSummary.swift */,
 				1A846CDA221C9E7700578F5B /* TestAttachmentFlow.swift */,
+				1A2E30502357A8B10075D780 /* ResultFile.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -335,6 +346,7 @@
 				F340F8181F2A37B000AECEE2 /* TimeInterval+Time.swift in Sources */,
 				F324B4991F22359500B5B8B4 /* main.swift in Sources */,
 				F306675F1F2A1BEC00EDE682 /* CodesParser.swift in Sources */,
+				1A2E30512357A8B10075D780 /* ResultFile.swift in Sources */,
 				F3190E642098648100BC991B /* XMLRepresentable.swift in Sources */,
 				F30667631F2A1BEC00EDE682 /* OutputTarget.swift in Sources */,
 				1A846CDB221C9E7700578F5B /* TestAttachmentFlow.swift in Sources */,
@@ -347,11 +359,13 @@
 				F30667641F2A1BEC00EDE682 /* Rainbow.swift in Sources */,
 				F30667551F2A1BE200EDE682 /* Style.swift in Sources */,
 				F30667651F2A1BEC00EDE682 /* String+Rainbow.swift in Sources */,
+				1A2E30532357ACC80075D780 /* EmittableOutput.swift in Sources */,
 				F3190E622098647300BC991B /* JUnitRepresentable.swift in Sources */,
 				F30667561F2A1BE200EDE682 /* XcodeColorsSupport.swift in Sources */,
 				F30667621F2A1BEC00EDE682 /* ModesExtractor.swift in Sources */,
 				F30667541F2A1BE200EDE682 /* StringGenerator.swift in Sources */,
 				1A96533022FA0ECB00B3EF31 /* Date+Formatting.swift in Sources */,
+				1A2E304F2357A5B90075D780 /* Package.swift in Sources */,
 				F3B7EE6A1F2242D200E19B57 /* RunDestination.swift in Sources */,
 				0994F3CB2175C1B7003988B4 /* String+Xml.swift in Sources */,
 				0994F3C92175C16A003988B4 /* String+Path.swift in Sources */,

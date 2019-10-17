@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import XCResultKit
 
 enum Status: String {
     case unknown = ""
@@ -110,28 +111,43 @@ class Test: HTML, Equatable
         return 0
     }
 
-    init(screenshotsPath: String, dict: [String : Any], parent: Test? = nil) {
-        uuid = dict["TestSummaryGUID"] as? String ?? NSUUID().uuidString
-        duration = dict["Duration"] as! Double
-        name = dict["TestName"] as! String
-        identifier = dict["TestIdentifier"] as! String
-
-        let objectClassRaw = dict["TestObjectClass"] as! String
-        objectClass = ObjectClass(rawValue: objectClassRaw)!
-
-        if let rawSubTests = dict["Subtests"] as? [[String : Any]] {
-            subTests = rawSubTests.map { Test(screenshotsPath: screenshotsPath, dict: $0) }
+    init(screenshotsPath: String, group: ActionTestSummaryGroup, file: ResultFile, parent: Test? = nil) {
+        self.uuid = NSUUID().uuidString
+        self.identifier = group.identifier
+        self.duration = group.duration
+        self.name = group.name
+        if group.subtests.isEmpty {
+            self.subTests = group.subtestGroups.map { Test(group: $0, file: file) }
+        } else {
+            self.subTests = group.subtests.map { Test(metadata: $0, file: file) }
         }
-
-        if let rawActivitySummaries = dict["ActivitySummaries"] as? [[String : Any]] {
-            activities = rawActivitySummaries.map { Activity(screenshotsPath: screenshotsPath, dict: $0, padding: 20) }
-        }
-
-        let rawStatus = dict["TestStatus"] as? String ?? ""
-        status = Status(rawValue: rawStatus)!
+        self.objectClass = .testSummaryGroup
+        self.activities = []
+        self.status = .unknown // ???: Usefull?
         testAttachmentFlow = TestAttachmentFlow(activities: activities)
         self.setParentToChildren()
     }
+    
+    init(screenshotsPath: String, metadata: ActionTestMetadata, file: ResultFile, parent: Test? = nil) {
+        self.uuid = NSUUID().uuidString
+        self.identifier = metadata.identifier
+        self.duration = metadata.duration ?? 0
+        self.name = metadata.name
+        self.subTests = []
+        self.status = Status(rawValue: metadata.testStatus) ?? .failure
+        self.objectClass = .testSummary
+        if let id = metadata.summaryRef?.id,
+            let actionTestSummary = file.getActionTestSummary(id: id) {
+            self.activities = actionTestSummary.activitySummaries.map {
+                Activity(summary: $0, file: file, padding: 20)
+            }
+        } else {
+            self.activities = []
+        }
+        testAttachmentFlow = TestAttachmentFlow(activities: activities)
+        self.setParentToChildren()
+    }
+
     
      func setParentToChildren() {
         
@@ -152,9 +168,13 @@ class Test: HTML, Equatable
             "UUID": uuid,
             "NAME": name + (amountSubTests > 0 ? " - \(amountSubTests) tests" : ""),
             "TIME": amountSubTests == 1 ? filteredSubTests!.first!.duration.timeString : (testFilter == nil ? duration.timeString : "-"),
-            "SUB_TESTS": filteredSubTests?.accumulateHTMLAsString ?? "",
+            "SUB_TESTS": subTests.reduce("") { (accumulator: String, test: Test) -> String in
+                return accumulator + test.html
+            },
             "HAS_ACTIVITIES_CLASS": (activities == nil) ? "no-drop-down" : "",
-            "ACTIVITIES": activities?.accumulateHTMLAsString ?? "",
+            "ACTIVITIES": activities.reduce("") { (accumulator: String, activity: Activity) -> String in
+                return accumulator + activity.html
+            },
             "ICON_CLASS": status.cssClass,
             "ITEM_CLASS": objectClass.cssClass,
             "LIST_ITEM_CLASS": objectClass == .testSummary ? (status == .failure ? "list-item list-item-failed" : "list-item") : "",
