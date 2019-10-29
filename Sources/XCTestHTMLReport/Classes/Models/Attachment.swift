@@ -152,7 +152,8 @@ struct Attachment: HTML
             "PADDING": String(padding + 52),
             "PATH": path,
             "FILENAME": filename,
-            "NAME": displayName
+            "NAME": displayName,
+            "STEP": step ?? "-"
         ]
     }
 }
