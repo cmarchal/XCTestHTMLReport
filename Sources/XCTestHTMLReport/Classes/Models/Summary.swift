@@ -35,6 +35,11 @@ struct Summary
         }
         self.runs = runs
     }
+
+    init(runs: [Run])
+    {
+        self.runs = runs
+    }
 }
 
 extension Summary: HTML
@@ -46,10 +51,11 @@ extension Summary: HTML
     var htmlPlaceholderValues: [String: String] {
         return [
             "DEVICES": runs.map { $0.runDestination.html }.joined(),
-            "RESULT_CLASS": runs.reduce(true, { (accumulator: Bool, run: Run) -> Bool in
+            /*"RESULT_CLASS": runs.reduce(true, { (accumulator: Bool, run: Run) -> Bool in
                 return accumulator && run.status == .success
-            }) ? "success" : "failure",
-            "RUNS": runs.map { $0.html }.joined()
+            }) ? "success" : "failure",*/
+            "RUNS": runs.map { $0.html }.joined(),
+            "DATE_TESTS": runs.first?.runStartDate?.dateString ?? ""
         ]
     }
 }

@@ -12,12 +12,11 @@ import XCResultKit
 struct Run: HTML
 {
     let runDestination: RunDestination
-    let testSummaries: [TestSummary]
+    var runStartDate: Date? = nil
+    var testSummaries: [TestSummary]
     let logContent: RenderingContent
     var status: Status {
-       return testSummaries.reduce(true, { (accumulator: Bool, summary: TestSummary) -> Bool in
-            return accumulator && summary.status == .success
-        }) ? .success : .failure
+        return numberOfFailedTests == 0 ? .success : .failure
     }
     var allTests: [Test] {
         let tests = testSummaries.flatMap { $0.tests }
@@ -27,16 +26,33 @@ struct Run: HTML
                 : test.allSubTests
         }
     }
+    var filteredTests: [Test]? {
+        get {
+            if testFilter != nil {
+                return allTests.filter{ $0.name == testFilter }
+            } else {
+                return allTests
+            }
+        }
+    }
     var numberOfTests : Int {
-        let a = allTests
-        return a.count
+        let a = filteredTests
+        return a?.count ?? 0
     }
     var numberOfPassedTests : Int {
-        return allTests.filter { $0.status == .success }.count
+        return filteredTests?.filter { $0.status == .success }.count ?? 0
     }
     var numberOfFailedTests : Int {
-        return allTests.filter { $0.status == .failure }.count
+        return filteredTests?.filter { $0.status == .failure }.count ?? 0
     }
+    var testFilter : String? = nil {
+        didSet {
+            for index in 0..<testSummaries.count {
+                testSummaries[index].testFilter = testFilter
+            }
+        }
+    }
+
 
     init?(action: ActionRecord, file: ResultFile, renderingMode: Summary.RenderingMode) {
         self.runDestination = RunDestination(record: action.runDestination)

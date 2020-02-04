@@ -51,7 +51,7 @@ struct RunDestination : HTML
 
     var htmlPlaceholderValues: [String: String] {
         return [
-            "DEVICE_RESULT": status.iconHTML,
+            //"DEVICE_RESULT": status.iconHTML,
             "DEVICE_NAME": name,
             "DEVICE_IDENTIFIER": targetDevice.uniqueIdentifier,
             "DEVICE_MODEL": targetDevice.model,

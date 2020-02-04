@@ -80,10 +80,14 @@ struct Activity: HTML
             Activity(summary: $0, file: file, padding: padding + 10, renderingMode: renderingMode)
         }
         self.type = ActivityType(rawValue: summary.activityType)
-        self.attachments = summary.attachments.map {
+        self.attachments = summary.attachments.filter{ !($0.name ?? $0.filename ?? "").starts(with: "Debug description")}.map {
             Attachment(attachment: $0, file: file, padding: padding + 16, renderingMode: renderingMode)
         }
         self.padding = padding
+    }
+
+    var isStepRelative: Bool {
+        return title.starts(with: "STEP")
     }
 
     // PRAGMA MARK: - HTML
@@ -95,7 +99,7 @@ struct Activity: HTML
             "UUID": uuid,
             "TITLE": title.stringByEscapingXMLChars,
             "PAPER_CLIP_CLASS": hasGlobalAttachment ? "inline-block" : "none",
-            "PADDING": (subActivities.isEmpty && attachments.isEmpty) ? String(padding + 18) : String(padding),
+            "PADDING": (subActivities.isEmpty && attachments.isEmpty) ? String(padding + 18 + 52) : String(padding + 52),
             "TIME": totalTime.timeString,
             "ACTIVITY_TYPE_CLASS": cssClasses,
             "HAS_SUB-ACTIVITIES_CLASS": (subActivities.isEmpty && attachments.isEmpty) ? "no-drop-down" : "",
