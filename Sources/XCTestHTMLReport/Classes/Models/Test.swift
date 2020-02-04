@@ -60,7 +60,7 @@ class Test: HTML, Equatable
     let duration: Double
     let name: String
     let subTests: [Test]
-        var filteredSubTests: [Test]? {
+    var filteredSubTests: [Test]? {
         get {
             if testFilter != nil {
                 return subTests.filter{ $0.name == testFilter }
@@ -108,15 +108,15 @@ class Test: HTML, Equatable
         return a == 0 ? subTests.count : a
     }
 
-    init(group: ActionTestSummaryGroup, file: ResultFile, parent: Test? = nil) {
+    init(group: ActionTestSummaryGroup, file: ResultFile, renderingMode: Summary.RenderingMode, parent: Test? = nil) {
         self.uuid = NSUUID().uuidString
         self.identifier = group.identifier
         self.duration = group.duration
         self.name = group.name
         if group.subtests.isEmpty {
-            self.subTests = group.subtestGroups.map { Test(group: $0, file: file) }
+            self.subTests = group.subtestGroups.map { Test(group: $0, file: file, renderingMode: renderingMode) }
         } else {
-            self.subTests = group.subtests.map { Test(metadata: $0, file: file) }
+            self.subTests = group.subtests.map { Test(metadata: $0, file: file, renderingMode: renderingMode) }
         }
         self.objectClass = .testSummaryGroup
         self.activities = []
@@ -125,7 +125,7 @@ class Test: HTML, Equatable
         self.setParentToChildren()
     }
 
-    init(metadata: ActionTestMetadata, file: ResultFile, parent: Test? = nil) {
+    init(metadata: ActionTestMetadata, file: ResultFile, renderingMode: Summary.RenderingMode, parent: Test? = nil) {
         self.uuid = NSUUID().uuidString
         self.identifier = metadata.identifier
         self.duration = metadata.duration ?? 0
@@ -136,7 +136,7 @@ class Test: HTML, Equatable
         if let id = metadata.summaryRef?.id,
             let actionTestSummary = file.getActionTestSummary(id: id) {
             self.activities = actionTestSummary.activitySummaries.map {
-                Activity(summary: $0, file: file, padding: 20)
+                Activity(summary: $0, file: file, padding: 20, renderingMode: renderingMode)
             }
         } else {
             self.activities = []

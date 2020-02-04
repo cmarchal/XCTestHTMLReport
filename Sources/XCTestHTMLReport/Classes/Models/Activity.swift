@@ -71,17 +71,17 @@ struct Activity: HTML
         return cls
     }
 
-    init(summary: ActionTestActivitySummary, file: ResultFile, padding: Int = 0) {
+    init(summary: ActionTestActivitySummary, file: ResultFile, padding: Int = 0, renderingMode: Summary.RenderingMode) {
         self.uuid = summary.uuid
         self.startTime = summary.start?.timeIntervalSince1970 ?? 0
         self.finishTime = summary.finish?.timeIntervalSince1970 ?? 0
         self.title = summary.title
         self.subActivities = summary.subactivities.map {
-            Activity(summary: $0, file: file, padding: padding + 10)
+            Activity(summary: $0, file: file, padding: padding + 10, renderingMode: renderingMode)
         }
         self.type = ActivityType(rawValue: summary.activityType)
         self.attachments = summary.attachments.filter{ !($0.name ?? $0.filename ?? "").starts(with: "Debug description")}.map {
-            Attachment(attachment: $0, file: file, padding: padding + 16)
+            Attachment(attachment: $0, file: file, padding: padding + 16, renderingMode: renderingMode)
         }
         self.padding = padding
     }
@@ -103,8 +103,12 @@ struct Activity: HTML
             "TIME": totalTime.timeString,
             "ACTIVITY_TYPE_CLASS": cssClasses,
             "HAS_SUB-ACTIVITIES_CLASS": (subActivities.isEmpty && attachments.isEmpty) ? "no-drop-down" : "",
-            "SUB_ACTIVITY": subActivities.accumulateHTMLAsString,
-            "ATTACHMENTS": attachments.accumulateHTMLAsString,
+            "SUB_ACTIVITY": subActivities.reduce("") { (accumulator: String, activity: Activity) -> String in
+                return accumulator + activity.html
+            },
+            "ATTACHMENTS": attachments.reduce("") { (accumulator: String, attachment: Attachment) -> String in
+                return accumulator + attachment.html
+            },
         ]
     }
 }
