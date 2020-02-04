@@ -77,6 +77,7 @@ struct Attachment: HTML
 {
     let padding: Int
     let filename: String
+    var path: String
     let content: RenderingContent
     let type: AttachmentType
     let name: AttachmentName?
@@ -85,15 +86,39 @@ struct Attachment: HTML
         self.filename = attachment.filename ?? ""
         self.type = AttachmentType(rawValue: attachment.uniformTypeIdentifier) ?? .unknown
         self.name = attachment.name.map(AttachmentName.init(rawValue:))
+        self.padding = padding
+        self.path = ""
         if let id = attachment.payloadRef?.id {
             self.content = file.exportPayloadContent(
                 id: id,
                 renderingMode: renderingMode
             )
+            self.path = source ?? ""
         } else {
             self.content = .none
         }
-        self.padding = padding
+        //Updating file names in order to ease importing them in Matrix
+        if FileManager.default.fileExists(atPath: file.url.relativePath + "/../" + path) {
+            do {
+                //Logger.success("\nNew path: \(path.addPathComponent("../\(filename)"))")
+                let url = URL(fileURLWithPath: file.url.relativePath + "/../" + path)
+                try FileManager.default.moveItem(at: url, to: url.appendingPathComponent("../\(filename)", isDirectory: false))
+                path = path.addPathComponent("../\(filename)")
+            } catch {
+                Logger.error("\nFile not moved")
+            }
+        } else {
+            Logger.error("\nFile at \(path) does not exist")
+        }
+    }
+
+    var isScreenshot: Bool {
+        switch type {
+        case .png, .jpeg:
+            return true
+        default:
+            return false
+        }
     }
 
     var fallbackDisplayName: String {
@@ -121,6 +146,19 @@ struct Attachment: HTML
         }
     }
 
+    var step: String? {
+
+        let splitString = filename.components(separatedBy: "__step")
+        if splitString.count > 1 {
+            return splitString[1].components(separatedBy: "__")[0]
+        }
+        return nil
+    }
+
+    var isFailure: Bool {
+        return filename.contains("Failure")
+    }
+
     var displayName: String {
         switch name {
         case .some(.custom(let customName)):
@@ -145,10 +183,12 @@ struct Attachment: HTML
 
     var htmlPlaceholderValues: [String: String] {
         return [
-            "PADDING": String(padding),
+            "PADDING": String(padding + 52),
+            "PATH": path,
             "SOURCE": source ?? "",
             "FILENAME": filename,
-            "NAME": displayName
+            "NAME": displayName,
+            "STEP": step ?? "-"
         ]
     }
 }

@@ -18,6 +18,7 @@ struct Run: HTML
     var status: Status {
         return numberOfFailedTests == 0 ? .success : .failure
     }
+
     var allTests: [Test] {
         let tests = testSummaries.flatMap { $0.tests }
         return tests.flatMap { test -> [Test] in
@@ -96,6 +97,7 @@ struct Run: HTML
     var htmlTemplate = HTMLTemplates.run
 
     var htmlPlaceholderValues: [String: String] {
+
         return [
             "DEVICE_IDENTIFIER": runDestination.targetDevice.uniqueIdentifier,
             "LOG_SOURCE": logSource ?? "",
@@ -105,5 +107,4 @@ struct Run: HTML
             "TEST_SUMMARIES": testSummaries.map { $0.html }.joined()
         ]
     }
-
 }

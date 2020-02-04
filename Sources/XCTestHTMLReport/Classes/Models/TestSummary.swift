@@ -14,8 +14,12 @@ struct TestSummary: HTML
     let uuid: String
     let testName: String
     let tests: [Test]
+    var testFilter : String? = nil
     var status: Status {
-        let currentTests = tests
+        var currentTests = tests
+                if let filter = testFilter {
+            currentTests = currentTests.filter{ $0.name == filter }
+        }
         var status: Status = .unknown
         
         var currentSubtests: [Test] = []
@@ -57,9 +61,15 @@ struct TestSummary: HTML
     var htmlTemplate = HTMLTemplates.testSummary
 
     var htmlPlaceholderValues: [String: String] {
+
+        var testsToUse = tests
+        if let filter = testFilter {
+            testsToUse = tests.filter{ $0.name == filter }
+        }
+
         return [
             "UUID": uuid,
-            "TESTS": tests.reduce("", { (accumulator: String, test: Test) -> String in
+            "TESTS": testsToUse.reduce("", { (accumulator: String, test: Test) -> String in
                 return accumulator + test.html
             })
         ]
