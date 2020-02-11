@@ -98,17 +98,19 @@ struct Attachment: HTML
             self.content = .none
         }
         //Updating file names in order to ease importing them in Matrix
-        if FileManager.default.fileExists(atPath: file.url.relativePath + "/../" + path) {
+        //Logger.success("\npath? : \(path.addPathComponent("../\(filename)"))")
+        let currentPath = file.url.relativePath.dropLastPathComponent().addPathComponent(path)
+        if FileManager.default.fileExists(atPath: currentPath) {
             do {
                 //Logger.success("\nNew path: \(path.addPathComponent("../\(filename)"))")
-                let url = URL(fileURLWithPath: file.url.relativePath + "/../" + path)
-                try FileManager.default.moveItem(at: url, to: url.appendingPathComponent("../\(filename)", isDirectory: false))
-                path = path.addPathComponent("../\(filename)")
+                let url = URL(fileURLWithPath: currentPath)
+                try FileManager.default.moveItem(at: url, to: url.deletingLastPathComponent().appendingPathComponent(filename, isDirectory: false))
+                path = path.dropLastPathComponent().addPathComponent(filename)
             } catch {
-                Logger.error("\nFile not moved")
+                Logger.error("\nFile not moved \(error)")
             }
         } else {
-            Logger.error("\nFile at \(path) does not exist")
+            Logger.error("\nFile at \(currentPath) does not exist")
         }
     }
 
