@@ -28,7 +28,7 @@ cd $BUILD_DIR
 swift build -c release
 
 chmod 755 .build/release/xchtmlreport
-mv .build/release/xchtmlreport .
+mv .build/release/xchtmlreport ..
 
 cd ".."
 rm $OUT_ZIP
