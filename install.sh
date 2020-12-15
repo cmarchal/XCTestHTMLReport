@@ -12,8 +12,7 @@ OUT_ZIP="xchtmlreport.zip"
 
 printf "Downloading xchtmlreport $VERSION\n"
 
-
-CURL=$(curl -L -s -w "%{http_code}" -o $OUT_ZIP https://github.com/cmarchal/XCTestHTMLReport/releases/download/$VERSION/xchtmlreport-$VERSION.zip)
+CURL=$(curl -L -s -w "%{http_code}" -o $OUT_ZIP https://github.com/cmarchal/XCTestHTMLReport/archive/$VERSION.zip)
 
 if [ ! -f $OUT_PATH ]; then
   printf '\e[1;31m%-6s\e[m' "Failed to download XCTestHTMLReport. Make sure the version you're trying to download exists."
